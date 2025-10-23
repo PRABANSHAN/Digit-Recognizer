@@ -1,0 +1,96 @@
+/* Fonts and base styles */
+body, button {
+  font-family: 'Montserrat', sans-serif;
+  background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* Video styling */
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.25));
+  background: #000;
+}
+
+/* Text styling */
+h1, p {
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* Button focus effect */
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.5);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Result text */
+#result {
+  color: #0d6efd; /* Bootstrap primary color */
+  letter-spacing: 2px;
+  user-select: none;
+}
+
+/* Custom small buttons */
+.custom-btn {
+  width: 140px;  /* Button width */
+  height: 40px;  /* Button height */
+  font-size: 14px; /* Slightly smaller text */
+  padding: 0 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Make main card responsive */
+@media (max-width: 500px) {
+  main > .card {
+    max-width: 95vw;
+  }
+
+  /* Stack buttons on small screens */
+  .btn-group-custom {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-group-custom button {
+    width: 100%;
+  }
+}
+
+/* prevent control buttons from stretching to the container height */
+.controls {
+  display: flex;          /* ensure it's a flex container */
+  align-items: center;    /* vertically center items */
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* compact fixed width buttons so they don't fill remaining vertical space */
+.controls .btn {
+  flex: 0 0 48%;          /* two buttons, each ~48% width with gap */
+  max-width: 48%;
+  height: 40px;           /* fixed, compact height */
+  padding: 0.35rem 0.75rem;
+  font-size: 0.95rem;
+  border-radius: 0.5rem;
+  align-self: center;
+}
+
+/* stacked buttons on very small screens */
+@media (max-width: 420px) {
+  .controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .controls .btn {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    height: 44px;
+  }
+}
