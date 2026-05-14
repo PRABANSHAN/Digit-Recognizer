@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Handwritten Digit Recognizer - Webcam</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <div class="app-shell d-flex flex-column min-vh-100">
+    <header class="site-header py-4 text-center">
+      <div class="container">
+        <h1 class="m-0 display-6 fw-bold">Handwritten Digit Recognizer</h1>
+        <p class="m-0 text-muted small">Real-time predictions from your webcam — TensorFlow + Flask</p>
+      </div>
+    </header>
+
+    <main class="flex-grow-1 d-flex align-items-center justify-content-center py-5">
+      <div class="card recognizer-card shadow-lg p-3 p-md-4">
+        <div class="video-wrap position-relative rounded-3 overflow-hidden mb-3">
+          <div class="ratio ratio-1x1">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+          </div>
+
+          <!-- result badge overlays the video -->
+          <div id="result-badge" class="result-badge d-none">
+            <span id="result" class="fw-bold fs-3">—</span>
+            <small id="confidence" class="d-block text-muted">0%</small>
+          </div>
+
+          <!-- loading overlay -->
+          <div id="loading" class="loading-overlay d-none" aria-hidden="true">
+            <div class="spinner-border text-light" role="status" style="width:2.5rem; height:2.5rem;">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2 mb-2 controls justify-content-between">
+          <button id="capture-btn" class="btn btn-primary btn-sm">Capture & Predict</button>
+          <button id="clear-btn" class="btn btn-outline-secondary btn-sm">Clear</button>
+        </div>
+
+        <div class="text-center small text-muted">
+          Tip: Hold the digit near the center of the square. Good lighting improves accuracy.
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer py-3 text-center text-muted">
+      © 2025 — Powered by Flask & TensorFlow
+    </footer>
+  </div>
+
+  <!-- Bootstrap JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
