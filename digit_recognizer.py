@@ -19,7 +19,7 @@ Usage examples:
 import argparse
 import numpy as np
 from tensorflow.keras.models import Sequential, load_model
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras.optimizers import Adam
@@ -28,23 +28,48 @@ import os
 import sys
 import base64
 import io
+import tensorflow as tf
 
 def build_model(input_shape=(28,28,1), num_classes=10):
     """Builds and returns a compiled CNN model."""
     model = Sequential([
-        Conv2D(32, (3,3), activation='relu', input_shape=input_shape),
+        # First block
+        Conv2D(32, (3,3), padding='same', activation='relu', input_shape=input_shape),
+        tf.keras.layers.BatchNormalization(),
+        Conv2D(32, (3,3), padding='same', activation='relu'),
+        tf.keras.layers.BatchNormalization(),
         MaxPooling2D((2,2)),
-        Conv2D(64, (3,3), activation='relu'),
+        tf.keras.layers.Dropout(0.25),
+        
+        # Second block
+        Conv2D(64, (3,3), padding='same', activation='relu'),
+        tf.keras.layers.BatchNormalization(),
+        Conv2D(64, (3,3), padding='same', activation='relu'),
+        tf.keras.layers.BatchNormalization(),
         MaxPooling2D((2,2)),
+        tf.keras.layers.Dropout(0.25),
+        
+        # Third block
+        Conv2D(128, (3,3), padding='same', activation='relu'),
+        tf.keras.layers.BatchNormalization(),
+        MaxPooling2D((2,2)),
+        tf.keras.layers.Dropout(0.25),
+        
+        # Flatten & Dense layers
         Flatten(),
-        Dense(128, activation='relu'),
-        Dense(num_classes, activation='softmax')
+        tf.keras.layers.Dense(256, activation='relu'),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dropout(0.5),
+        tf.keras.layers.Dense(num_classes, activation='softmax')
     ])
-    model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-def train_and_save(model_path='digit_recognizer_cnn.h5', epochs=10, batch_size=64, verbose=1):
-    """Train on MNIST and save the trained model to model_path."""
+def train_and_save(model_path='digit_recognizer_cnn.h5', epochs=30, batch_size=128, verbose=1):
+    """Train on MNIST with data augmentation and save the trained model to model_path."""
     print("Loading MNIST dataset...")
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     # reshape and normalize
@@ -53,13 +78,35 @@ def train_and_save(model_path='digit_recognizer_cnn.h5', epochs=10, batch_size=6
     y_train = to_categorical(y_train, 10)
     y_test  = to_categorical(y_test, 10)
 
+    # Data augmentation
+    from tensorflow.keras.preprocessing.image import ImageDataGenerator
+    datagen = ImageDataGenerator(
+        rotation_range=10,
+        width_shift_range=0.1,
+        height_shift_range=0.1,
+        zoom_range=0.1,
+        fill_mode='nearest'
+    )
+    
+    # Callbacks
+    from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+    early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True, verbose=1)
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, min_lr=1e-7, verbose=1)
+
     model = build_model()
-    print("Training model...")
-    model.fit(x_train, y_train, validation_split=0.2, epochs=epochs, batch_size=batch_size, verbose=verbose)
+    print("Training model with data augmentation...")
+    model.fit(
+        datagen.flow(x_train, y_train, batch_size=batch_size),
+        validation_data=(x_test, y_test),
+        epochs=epochs,
+        callbacks=[early_stopping, reduce_lr],
+        verbose=verbose,
+        steps_per_epoch=len(x_train) // batch_size
+    )
 
     print("Evaluating on test set...")
     loss, acc = model.evaluate(x_test, y_test, verbose=0)
-    print(f"Test accuracy: {acc*100:.2f}%  (loss: {loss:.4f})")
+    print(f"✅ Test accuracy: {acc*100:.2f}%  (loss: {loss:.4f})")
 
     print(f"Saving model to {model_path} ...")
     model.save(model_path)
@@ -85,9 +132,14 @@ def preprocess_pil_image(pil_img):
     img = pil_img.convert('L')
     # ensure square and resize: keep aspect ratio by padding
     img = ImageOps.fit(img, (28,28), Image.ANTIALIAS)
-    # invert colors: MNIST digits are white (high) on black background (low).
-    # If your input is white paper with dark writing, you may need to invert differently.
-    img = ImageOps.invert(img)
+
+    # Decide whether to invert based on average brightness.
+    # If the image is bright (light background, dark strokes), mean will be high -> invert.
+    arr_uint8 = np.array(img)
+    mean_val = arr_uint8.mean()
+    if mean_val > 127:
+        img = ImageOps.invert(img)
+
     arr = np.array(img).astype('float32') / 255.0
     arr = arr.reshape(1,28,28,1)
     return arr
