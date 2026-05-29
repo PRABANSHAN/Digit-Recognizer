@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Digit Recognizer AI</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Animated Background -->
+    <div class="background-gradient"></div>
+    
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo-section">
+          <i class="fas fa-brain logo-icon"></i>
+          <h1>Digit AI</h1>
+        </div>
+        <p class="subtitle">Recognize handwritten digits with AI</p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <div class="grid-layout">
+          <!-- Left Panel: Camera Feed -->
+          <div class="camera-panel">
+            <div class="camera-wrapper">
+              <video id="video" autoplay playsinline muted class="video-stream"></video>
+              <canvas id="canvas" style="display:none;"></canvas>
+              
+              <!-- Overlay Frame -->
+              <div class="capture-frame"></div>
+              
+              <!-- Loading Spinner -->
+              <div id="loading" class="loading-overlay d-none">
+                <div class="spinner">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              
+              <!-- Prediction Badge -->
+              <div id="result-badge" class="prediction-badge d-none">
+                <div class="digit-display">
+                  <span id="result">?</span>
+                </div>
+                <div class="confidence-bar">
+                  <div id="confidence-fill" class="fill"></div>
+                </div>
+                <small id="confidence-text">0%</small>
+              </div>
+            </div>
+
+            <!-- Camera Status -->
+            <div id="camera-status" class="camera-status"></div>
+          </div>
+
+          <!-- Right Panel: Controls & Info -->
+          <div class="info-panel">
+            <div class="info-card">
+              <h2>How to Use</h2>
+              <ol class="instruction-list">
+                <li>Position your hand with a digit</li>
+                <li>Ensure good lighting</li>
+                <li>Center the digit in frame</li>
+                <li>Click "Capture & Predict"</li>
+              </ol>
+
+              <!-- Controls -->
+              <div class="controls-section">
+                <button id="capture-btn" class="btn-primary btn-action">
+                  <i class="fas fa-camera"></i> Capture & Predict
+                </button>
+                <button id="clear-btn" class="btn-secondary btn-action">
+                  <i class="fas fa-redo"></i> Clear Result
+                </button>
+              </div>
+
+              <!-- Stats -->
+              <div class="stats-box">
+                <h3>Last Prediction</h3>
+                <div class="stat-item">
+                  <span class="label">Digit:</span>
+                  <span id="stat-digit" class="value">—</span>
+                </div>
+                <div class="stat-item">
+                  <span class="label">Confidence:</span>
+                  <span id="stat-confidence" class="value">0%</span>
+                </div>
+              </div>
+
+              <!-- Tips -->
+              <div class="tips-box">
+                <h4><i class="fas fa-lightbulb"></i> Tips for Better Accuracy</h4>
+                <ul>
+                  <li>Use a plain background</li>
+                  <li>Write clear, bold digits</li>
+                  <li>Avoid shadows or glare</li>
+                  <li>Keep digit in center area</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>🤖 Powered by TensorFlow & Flask | AI Digit Recognition</p>
+    </footer>
+  </div>
+
+  <!-- Custom JS -->
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

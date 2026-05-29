@@ -1,22 +1,32 @@
 from flask import Flask, render_template, request, jsonify
 from tensorflow.keras.models import load_model
+from digit_recognizer import preprocess_pil_image
 import numpy as np
 from PIL import Image
 import io
 import base64
+import os
 
-app = Flask(__name__)
+# Initialize Flask app with static and template folders
+app = Flask(__name__, 
+            static_folder='static',
+            static_url_path='/static',
+            template_folder='templates')
 
-model = load_model('digit_model.h5')
+# Load model
+try:
+    model = load_model('digit_model.h5')
+except Exception as e:
+    print(f"Warning: Could not load model: {e}")
+    model = None
 
 def preprocess_image(image_bytes):
-    img = Image.open(io.BytesIO(image_bytes)).convert('L')  # grayscale
-    img = img.resize((28, 28))
-    img = np.array(img)
-    img = 255 - img  # invert colors (assuming white digit on dark bg)
-    img = img / 255.0
-    img = img.reshape(1, 28, 28, 1)
-    return img
+    # Use the same preprocessing used by the training/utility module to
+    # ensure consistent resizing, inversion and padding (ImageOps.fit).
+    pil_img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+    # delegate to shared preprocessing which returns shape (1,28,28,1)
+    arr = preprocess_pil_image(pil_img)
+    return arr
 
 @app.route('/')
 def index():
@@ -24,16 +34,27 @@ def index():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.get_json()
-    img_data = data['image']
-    header, encoded = img_data.split(',', 1)
-    image_bytes = base64.b64decode(encoded)
+    try:
+        if model is None:
+            return jsonify({'error': 'Model not loaded'}), 500
+            
+        data = request.get_json()
+        if 'image' not in data:
+            return jsonify({'error': 'No image provided'}), 400
+            
+        img_data = data['image']
+        header, encoded = img_data.split(',', 1)
+        image_bytes = base64.b64decode(encoded)
 
-    img = preprocess_image(image_bytes)
-    prediction = model.predict(img)
-    digit = int(np.argmax(prediction))
+        img = preprocess_image(image_bytes)
+        prediction = model.predict(img, verbose=0)
+        digit = int(np.argmax(prediction))
+        confidence = float(np.max(prediction))
 
-    return jsonify({'digit': digit})
+        return jsonify({'digit': digit, 'confidence': confidence})
+    except Exception as e:
+        print(f"Prediction error: {e}")
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='localhost', port=5000)
