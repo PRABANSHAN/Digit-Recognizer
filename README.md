@@ -1,8 +1,8 @@
 # 🎯 Digit Recognizer
 
-A machine learning project that recognizes handwritten digits using a Convolutional Neural Network (CNN). The project includes both a Python backend powered by Flask and an interactive web interface where users can draw digits and get real-time predictions.
+A machine learning project that recognizes handwritten digits using a Convolutional Neural Network (CNN). The project includes both a Python backend powered by Flask and an interactive web interface.
 
-**🌐 Live Demo:** [https://prabanshan.github.io/Digit-Recognizer/](https://prabanshan.github.io/Digit-Recognizer/)
+**🌐 Live Demo:** [https://PRABANSHAN.github.io/Digit-Recognizer/](https://PRABANSHAN.github.io/Digit-Recognizer/)
 
 ---
 
@@ -493,7 +493,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 - GitHub: [@PRABANSHAN](https://github.com/PRABANSHAN)
 - Project Repository: [Digit-Recognizer](https://github.com/PRABANSHAN/Digit-Recognizer)
-- Live Demo: [https://prabanshan.github.io/Digit-Recognizer/](https://prabanshan.github.io/Digit-Recognizer/)
+- Live Demo: [https://PRABANSHAN.github.io/Digit-Recognizer/](https://PRABANSHAN.github.io/Digit-Recognizer/)
 
 ---
 
